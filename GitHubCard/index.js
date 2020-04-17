@@ -13,18 +13,35 @@ axios.get(`https://api.github.com/users/markanator`)
     console.log("Couldn't get profile", reject);
   });
 
-  // big brain stuff, that we don't need
-  // axios.get(`https://api.github.com/users/markanator/followers`)
-  // .then((resolve)=>{
-  //  
-  //   resolve.data.forEach(element => {
-  //     //console.log(element);
-  //     entryPoint.appendChild(createGitCard(element));
-  //   });
-  // })
-  // .catch((reject)=>{
-  //   console.log("Couldn't get profile", reject);
-  // });
+  // STRETCH::
+let followersArray = [];
+
+async function gitUser(user) {
+  try {
+    const response = await axios.get(`https://api.github.com/users/${user}`);
+    entryPoint.appendChild(createGitCard(response.data));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+axios.get(`https://api.github.com/users/markanator/followers`)
+.then((resolve)=>{
+  
+  return resolve.data.forEach((user)=>{
+    followersArray.push(user.login);
+  });
+})
+.then(()=>{
+  followersArray.forEach((index)=>{
+    gitUser(index);
+  });
+})
+.catch((reject)=>{
+  console.log("Couldn't get profile", reject);
+});
+  // END STRETCH
+
 
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
@@ -47,22 +64,24 @@ axios.get(`https://api.github.com/users/markanator`)
           user, and adding that card to the DOM.
 */
 
-const followersArray = ['alexvision26',
-                        'stahlgazer',
-                        'AustinKelsay',
-                        'justsml',
-                        'luishrd',
-                        'bigknell'];
-
-followersArray.forEach((index)=>{
-  axios.get(`https://api.github.com/users/${index}`)
-  .then((resolve)=>{
-    entryPoint.appendChild(createGitCard(resolve.data));
-  })
-  .catch((reject)=>{
-    console.log("Couldn't get profile", reject);
-  });
-});
+// MVP
+// const followersArray = ['alexvision26',
+//                         'stahlgazer',
+//                         'AustinKelsay',
+//                         'justsml',
+//                         'luishrd',
+//                         'bigknell'];
+//
+//
+// followersArray.forEach((index)=>{
+//   axios.get(`https://api.github.com/users/${index}`)
+//   .then((resolve)=>{
+//     entryPoint.appendChild(createGitCard(resolve.data));
+//   })
+//   .catch((reject)=>{
+//     console.log("Couldn't get profile", reject);
+//   });
+// });
 
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
@@ -99,7 +118,8 @@ function createGitCard(object){
   //second set of kids LOL
   const nameHead = document.createElement('h3');
   nameHead.classList.add('name');
-  
+
+  // STRETCH::
   // using API if the name is not present, substitute it for their username!
   let nameCheck = ()=> {
     if (object.name === undefined){
